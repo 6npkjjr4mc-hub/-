@@ -174,24 +174,24 @@
   .cal-dow.sat{color:#7fb0e0}
   .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;grid-auto-rows:64px}
   .day{
-    position:relative;border-radius:12px;padding:5px 2px 4px;
-    display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;
+    position:relative;border-radius:12px;padding:5px 2px 6px;
+    display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:2px;
     background:#fdfafb;transition:background .15s,transform .12s;overflow:hidden;
   }
   .day .stk{
     position:absolute;top:2px;right:2px;z-index:2;pointer-events:none;
     display:flex;flex-direction:column;align-items:flex-end;gap:0;
-    font-size:11px;line-height:1.05;
+    font-size:12px;line-height:1.05;
     filter:drop-shadow(0 1px 1px rgba(74,63,69,.18));
   }
   .day .ph{
     position:absolute;top:2px;left:2px;z-index:2;pointer-events:none;
-    font-size:9.5px;line-height:1;opacity:.9;
+    font-size:11px;line-height:1;opacity:.9;
   }
   .day:active{transform:scale(.95)}
   .day .num{
-    width:24px;height:24px;border-radius:50%;display:grid;place-items:center;
-    font-size:13px;font-weight:800;color:var(--ink-2);line-height:1;
+    width:26px;height:26px;border-radius:50%;display:grid;place-items:center;
+    font-size:13.5px;font-weight:800;color:var(--ink-2);line-height:1;
     font-variant-numeric:tabular-nums;
   }
   .day.sun .num{color:#ee7f92}
@@ -202,14 +202,14 @@
   .day.today .num{background:#ff8fab;color:#fff;box-shadow:0 3px 7px rgba(255,143,171,.45)}
   .day.sel{box-shadow:inset 0 0 0 2px #ffb3c9}
   .day .amt{
-    font-size:10.5px;font-weight:800;line-height:1.15;white-space:nowrap;
+    font-size:11.5px;font-weight:800;line-height:1.15;white-space:nowrap;
     letter-spacing:-0.4px;font-variant-numeric:tabular-nums;max-width:100%;overflow:hidden;
   }
   .day .amt.out{color:var(--minus)}
   .day .amt.in{color:var(--plus)}
   .day.has .num{color:var(--ink)}
   .day.has-memo::after{
-    content:"";position:absolute;bottom:4px;right:5px;width:6px;height:6px;border-radius:50%;
+    content:"";position:absolute;bottom:5px;right:6px;width:7px;height:7px;border-radius:50%;
     background:#ffb3c9;
   }
   .cal-foot{
@@ -1093,7 +1093,7 @@
     var avail = window.innerHeight - top - reserve;
     var gap = 3;
     var h = Math.floor((avail - gap * (rows - 1)) / rows);
-    h = Math.max(50, Math.min(132, h));
+    h = Math.max(50, Math.min(122, h));
     grid.style.gridAutoRows = h + 'px';
   }
 
