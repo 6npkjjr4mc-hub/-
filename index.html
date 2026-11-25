@@ -1089,11 +1089,11 @@
     if (!rows) return;
     var top = grid.getBoundingClientRect().top;
     var tab = $('tabbar');
-    var reserve = (tab ? tab.offsetHeight : 58) + 16;
+    var reserve = (tab ? tab.offsetHeight : 58) + 52;
     var avail = window.innerHeight - top - reserve;
     var gap = 3;
     var h = Math.floor((avail - gap * (rows - 1)) / rows);
-    h = Math.max(50, Math.min(118, h));
+    h = Math.max(50, Math.min(132, h));
     grid.style.gridAutoRows = h + 'px';
   }
 
