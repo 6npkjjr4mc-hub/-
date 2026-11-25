@@ -845,6 +845,12 @@
     return digits ? Number(digits).toLocaleString('ko-KR') : '';
   }
   function $(id) { return document.getElementById(id); }
+  function withRo(s) {
+    var c = String(s).charCodeAt(String(s).length - 1);
+    if (c < 0xAC00 || c > 0xD7A3) return s + '로';
+    var jong = (c - 0xAC00) % 28;
+    return s + ((jong === 0 || jong === 8) ? '로' : '으로');
+  }
 
   /* =========================================================
      저장 / 불러오기
@@ -1341,17 +1347,18 @@
 
     var msg = '';
     if (txns.length) {
-      msg += '내역 ' + txns.length + '건은 ' + label + ' 기록에 합쳐져요' +
-        (already.length ? ',' : '.') + '\n';
+      msg += '내역 ' + txns.length + '건은 ' + label + ' 기록에 합쳐져요.' + '\n';
     }
     if (already.length) {
       var moved = [];
       if (v) moved.push('메모');
       if (stks.length) moved.push('스티커 ' + stks.length + '개');
       if (phs.length) moved.push('사진 ' + phs.length + '장');
-      msg += label + '에 이미 ' + already.join('·') + '가 있어요.\n' +
-        '옮기면 ' + label + '의 ' + already.join('·') + '는 ' +
-        (moved.length ? '이번에 옮기는 ' + moved.join('·') + '로 덮어써져요.' : '지워져요.') + '\n';
+      msg += label + '에 이미 ' + already.join(', ') + '가 있어요.\n' +
+        '옮기면 ' + label + '의 기존 ' + already.join(', ') + '는 ' +
+        (moved.length
+          ? withRo(moved.join(', ')) + ' 바뀌어요.'
+          : '지워져요.') + '\n';
     }
     if (msg) {
       msg += '그래도 옮길까요?';
