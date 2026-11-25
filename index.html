@@ -431,6 +431,34 @@
   .daymemo{background:#fff8fb;border-radius:13px;padding:9px 10px 3px;margin:2px 0 9px}
   .daymemo label{display:block;font-size:10.5px;font-weight:800;color:#c07d9b;margin-bottom:5px}
   .daymemo .field{background:#fff;margin-bottom:6px;font-size:16px;padding:9px 10px}
+  .day-headtxt{flex:1;min-width:0}
+  .day-headtxt h2{font-size:15.5px;font-weight:900;letter-spacing:-0.5px}
+  .day-nav{display:flex;align-items:center;gap:6px;margin-top:6px}
+  .daystep{
+    width:29px;height:31px;flex:0 0 29px;border-radius:10px;display:grid;place-items:center;
+    font-size:10.5px;color:var(--pink-text);background:var(--pink-2);transition:transform .12s,background .15s;
+  }
+  .daystep:active{transform:scale(.9);background:#ffd9e6}
+  .day-date{
+    flex:1;min-width:0;border:0;background:#fbf7f9;border-radius:10px;padding:7px 9px;
+    font-size:13.5px;font-weight:700;color:var(--ink-2);box-shadow:inset 0 0 0 1px #f3e9ee;outline:none;
+  }
+  .day-date:focus{box-shadow:inset 0 0 0 1.5px #ffc2d6;background:#fff}
+  .day-date::-webkit-calendar-picker-indicator{opacity:.5}
+  .memo-move{display:flex;align-items:center;gap:6px;margin:1px 0 6px}
+  .mm-lbl{font-size:10.5px;font-weight:800;color:#c07d9b;white-space:nowrap}
+  .mm-date{
+    flex:1;min-width:0;border:0;background:#fff;border-radius:10px;padding:7px 8px;
+    font-size:12.5px;font-weight:700;color:var(--ink-2);box-shadow:inset 0 0 0 1px #f3e9ee;outline:none;
+  }
+  .mm-date:focus{box-shadow:inset 0 0 0 1.5px #ffc2d6}
+  .mm-date::-webkit-calendar-picker-indicator{opacity:.5}
+  .mm-btn{
+    flex:0 0 auto;border-radius:10px;padding:8px 11px;font-size:11.5px;font-weight:800;color:#fff;
+    background:linear-gradient(135deg,#ffa0b9,#ff85a8 60%,#ff9a86);
+    box-shadow:0 4px 10px rgba(255,133,168,.28);transition:transform .12s;
+  }
+  .mm-btn:active{transform:scale(.96)}
 
   /* 스티커 / 사진 */
   .sect{margin:0 0 10px}
@@ -644,12 +672,24 @@
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="dayTitle">
     <div class="grip"></div>
     <div class="sheet-head">
-      <h2 id="dayTitle">11월 24일</h2>
+      <div class="day-headtxt">
+        <h2 id="dayTitle">11월 24일</h2>
+        <div class="day-nav">
+          <button class="daystep" id="dayPrev" type="button" aria-label="전날">◀</button>
+          <input class="day-date" id="dayDate" type="date" aria-label="날짜 선택" />
+          <button class="daystep" id="dayNext" type="button" aria-label="다음 날">▶</button>
+        </div>
+      </div>
       <button class="close-x" type="button" data-close="dayOverlay" aria-label="닫기">✕</button>
     </div>
     <div class="daymemo">
       <label for="dayMemo">📝 이 날의 한 줄 메모</label>
       <input class="field" id="dayMemo" type="text" maxlength="60" placeholder="예: 비 와서 택시 탔음 ☔" />
+      <div class="memo-move">
+        <span class="mm-lbl">↪ 다른 날짜로</span>
+        <input class="mm-date" id="memoMoveDate" type="date" aria-label="메모를 옮길 날짜" />
+        <button class="mm-btn" id="memoMoveBtn" type="button">옮기기</button>
+      </div>
     </div>
 
     <div class="sect">
@@ -1348,6 +1388,8 @@
     var dow = new Date(parts[0], parts[1] - 1, parts[2]).getDay();
     $('dayTitle').textContent = parts[1] + '월 ' + parts[2] + '일 (' + DOW[dow] + ')';
     $('dayMemo').value = state.memos[dateStr] || '';
+    $('dayDate').value = dateStr;
+    $('memoMoveDate').value = dateStr;
     renderStickers();
     renderDayPhotos();
 
@@ -1390,6 +1432,7 @@
   }
 
   function saveDayMemo() {
+    if (!dayTarget) return;
     var v = $('dayMemo').value.trim();
     if (v) state.memos[dayTarget] = v;
     else delete state.memos[dayTarget];
@@ -1397,6 +1440,45 @@
     renderCalendar();
     renderList();
     renderStats();
+  }
+
+  /* 팝업 안에서 바로 날짜 이동 */
+  function shiftISO(dateStr, delta) {
+    var p = (dateStr || todayISO()).split('-').map(Number);
+    var d = new Date(p[0], p[1] - 1, p[2] + delta);
+    return isoDate(d.getFullYear(), d.getMonth(), d.getDate());
+  }
+
+  function goDay(dateStr) {
+    if (!dateStr || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return;
+    saveDayMemo();                 // 지금 보던 날짜의 메모를 먼저 저장
+    var p = dateStr.split('-').map(Number);
+    view.y = p[0];
+    view.m = p[1] - 1;
+    view.sel = dateStr;
+    openDay(dateStr);
+  }
+
+  /* 메모를 다른 날짜로 옮기기 */
+  function moveDayMemo() {
+    var v = $('dayMemo').value.trim();
+    var target = $('memoMoveDate').value;
+    if (!v) { toast('옮길 메모를 먼저 적어주세요 ✍️'); $('dayMemo').focus(); return; }
+    if (!target || !/^\d{4}-\d{2}-\d{2}$/.test(target)) { toast('옮길 날짜를 골라주세요 📅'); return; }
+    if (target === dayTarget) { toast('지금 보고 있는 날짜예요 🙂'); return; }
+    var tp = target.split('-').map(Number);
+    var label = tp[1] + '월 ' + tp[2] + '일';
+    if (state.memos[target] && state.memos[target] !== v &&
+        !window.confirm(label + '에 이미 메모가 있어요.\n' + label + ' 메모를 이 내용으로 바꿀까요?')) return;
+    state.memos[target] = v;
+    if (dayTarget) delete state.memos[dayTarget];
+    persist();
+    view.y = tp[0];
+    view.m = tp[1] - 1;
+    view.sel = target;
+    openDay(target);
+    renderAll();
+    toast('📝 ' + label + '로 옮겼어요');
   }
 
   /* =========================================================
@@ -1841,6 +1923,10 @@
     });
     $('dayMemo').addEventListener('input', saveDayMemo);
     $('dayMemo').addEventListener('change', saveDayMemo);
+    $('dayDate').addEventListener('change', function () { goDay(this.value); });
+    $('dayPrev').addEventListener('click', function () { goDay(shiftISO(dayTarget || todayISO(), -1)); });
+    $('dayNext').addEventListener('click', function () { goDay(shiftISO(dayTarget || todayISO(), 1)); });
+    $('memoMoveBtn').addEventListener('click', moveDayMemo);
 
     $('stkPad').addEventListener('click', function (e) {
       var b = e.target.closest ? e.target.closest('.stkbtn[data-stk]') : null;
@@ -1977,6 +2063,9 @@
     load();
     $('qDate').value = todayISO();
     $('qDate').max = '2099-12-31';
+    $('eDate').max = '2099-12-31';
+    $('dayDate').max = '2099-12-31';
+    $('memoMoveDate').max = '2099-12-31';
     renderQuickChips();
     bind();
     setTab('calendar');
