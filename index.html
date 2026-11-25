@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>🐻 이모지 가계부</title>
-<meta name="description" content="탁상 달력처럼 보는 귀여운 이모지 가계부 — 예산 게이지, 현금/카드 구분, 한 줄 메모." />
+<title>🐻 문탕이의 가계부</title>
+<meta name="description" content="탁상 달력처럼 보는 귀여운 가계부 — 예산 게이지, 현금/카드 구분, 한 줄 메모." />
 <meta name="theme-color" content="#fff7fa" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-<meta name="apple-mobile-web-app-title" content="이모지 가계부" />
+<meta name="apple-mobile-web-app-title" content="문탕이의 가계부" />
 <meta name="format-detection" content="telephone=no" />
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%23ffd9e3'/%3E%3Ctext x='90' y='124' font-size='96' text-anchor='middle'%3E%F0%9F%90%BB%3C/text%3E%3C/svg%3E" />
 <style>
@@ -73,7 +73,7 @@
   }
 
   /* ---------- 상단 ---------- */
-  .top{padding-top:calc(14px + env(safe-area-inset-top))}
+  .top{padding-top:calc(10px + env(safe-area-inset-top))}
   .brand{display:flex;align-items:center;gap:9px}
   .brand-emoji{
     width:38px;height:38px;flex:0 0 38px;border-radius:14px;
@@ -100,9 +100,9 @@
   .nav-arrow:active{transform:scale(.9);background:#ffd9e6}
 
   /* ---------- 요약 스트립 ---------- */
-  .summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:9px}
+  .summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:7px}
   .s-box{
-    background:#fff;border-radius:14px;padding:8px 6px 9px;text-align:center;
+    background:#fff;border-radius:13px;padding:6px 5px 7px;text-align:center;
     box-shadow:0 5px 14px rgba(74,63,69,.05);
   }
   .s-lbl{display:block;font-size:10px;font-weight:700;color:var(--ink-3);margin-bottom:2px;letter-spacing:-0.2px}
@@ -126,7 +126,7 @@
   /* =========================================
      탁상 달력
      ========================================= */
-  .desk{position:relative;margin:20px 0 12px}
+  .desk{position:relative;margin:14px -10px 10px}
   .rings{
     position:absolute;top:-11px;left:0;right:0;z-index:3;
     display:flex;justify-content:space-between;padding:0 26px;
@@ -144,7 +144,7 @@
   }
   .cal-band{
     display:flex;align-items:center;gap:7px;
-    padding:9px 12px;
+    padding:8px 10px;
     background:linear-gradient(135deg,#ffe3ec 0%,#fff0d8 100%);
     border-bottom:1.5px dashed #ffd2dd;
   }
@@ -167,31 +167,31 @@
   .band-right .b-spent{display:block;font-size:12.5px;font-weight:900;color:var(--minus);font-variant-numeric:tabular-nums;letter-spacing:-0.4px}
   .band-right small{display:block;font-size:9.5px;font-weight:800;color:#b98aa0}
 
-  .cal-body{padding:9px 9px 4px}
+  .cal-body{padding:8px 6px 4px}
   .cal-head{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px}
-  .cal-dow{text-align:center;font-size:10px;font-weight:800;color:var(--ink-3);padding:1px 0}
+  .cal-dow{text-align:center;font-size:11px;font-weight:800;color:var(--ink-3);padding:1px 0}
   .cal-dow.sun{color:#ef8598}
   .cal-dow.sat{color:#7fb0e0}
-  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;grid-auto-rows:64px}
   .day{
-    position:relative;min-height:54px;border-radius:10px;padding:4px 1px 3px;
-    display:flex;flex-direction:column;align-items:center;gap:1px;
+    position:relative;border-radius:12px;padding:5px 2px 4px;
+    display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;
     background:#fdfafb;transition:background .15s,transform .12s;overflow:hidden;
   }
   .day .stk{
-    position:absolute;top:1.5px;right:1px;z-index:2;pointer-events:none;
+    position:absolute;top:2px;right:2px;z-index:2;pointer-events:none;
     display:flex;flex-direction:column;align-items:flex-end;gap:0;
-    font-size:8.5px;line-height:1.05;
+    font-size:11px;line-height:1.05;
     filter:drop-shadow(0 1px 1px rgba(74,63,69,.18));
   }
   .day .ph{
-    position:absolute;top:1.5px;left:1.5px;z-index:2;pointer-events:none;
-    font-size:7.5px;line-height:1;opacity:.9;
+    position:absolute;top:2px;left:2px;z-index:2;pointer-events:none;
+    font-size:9.5px;line-height:1;opacity:.9;
   }
   .day:active{transform:scale(.95)}
   .day .num{
-    width:21px;height:21px;border-radius:50%;display:grid;place-items:center;
-    font-size:11.5px;font-weight:800;color:var(--ink-2);line-height:1;
+    width:24px;height:24px;border-radius:50%;display:grid;place-items:center;
+    font-size:13px;font-weight:800;color:var(--ink-2);line-height:1;
     font-variant-numeric:tabular-nums;
   }
   .day.sun .num{color:#ee7f92}
@@ -202,25 +202,25 @@
   .day.today .num{background:#ff8fab;color:#fff;box-shadow:0 3px 7px rgba(255,143,171,.45)}
   .day.sel{box-shadow:inset 0 0 0 2px #ffb3c9}
   .day .amt{
-    font-size:9px;font-weight:800;line-height:1.15;white-space:nowrap;
+    font-size:10.5px;font-weight:800;line-height:1.15;white-space:nowrap;
     letter-spacing:-0.4px;font-variant-numeric:tabular-nums;max-width:100%;overflow:hidden;
   }
   .day .amt.out{color:var(--minus)}
   .day .amt.in{color:var(--plus)}
   .day.has .num{color:var(--ink)}
   .day.has-memo::after{
-    content:"";position:absolute;bottom:2.5px;right:3.5px;width:4px;height:4px;border-radius:50%;
+    content:"";position:absolute;bottom:4px;right:5px;width:6px;height:6px;border-radius:50%;
     background:#ffb3c9;
   }
   .cal-foot{
-    display:flex;align-items:center;justify-content:center;gap:10px;
-    padding:7px 10px 9px;font-size:9.5px;font-weight:800;color:var(--ink-3);
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    padding:6px 8px 8px;font-size:9.5px;font-weight:800;color:var(--ink-3);
     border-top:1px solid #fdf1f5;
   }
   .cal-foot .hl{color:var(--minus)}
   .cal-foot .hl2{color:var(--plus)}
   .stand{
-    height:11px;margin:0 16px;border-radius:0 0 18px 18px;
+    height:11px;margin:0 14px;border-radius:0 0 18px 18px;
     background:linear-gradient(180deg,#f3d6e3 0%,#e6bfd1 100%);
     box-shadow:0 10px 18px rgba(180,120,150,.26);
   }
@@ -521,7 +521,7 @@
     <div class="brand">
       <div class="brand-emoji">🐻</div>
       <div class="brand-txt">
-        <h1>이모지 가계부</h1>
+        <h1>문탕이의 가계부</h1>
         <p>알뜰살뜰 기록 중 ✨</p>
       </div>
       <button class="icon-btn" id="menuBtn" type="button" aria-label="설정 열기">⚙️</button>
@@ -573,27 +573,6 @@
         </div>
         <div class="stand" aria-hidden="true"></div>
       </div>
-
-      <button class="budget" id="budgetCard" type="button" aria-label="월 예산 수정">
-        <div class="b-head">
-          <span class="b-title">🍯 이번 달 예산</span>
-          <span class="b-edit">수정 ✏️</span>
-        </div>
-        <div class="b-row">
-          <span class="b-used" id="bUsed">0원</span>
-          <span class="b-total" id="bTotal">/ 500,000원</span>
-        </div>
-        <div class="gauge"><div class="gauge-fill ok" id="gaugeFill"></div></div>
-        <div class="b-foot">
-          <span class="b-status ok" id="bStatus">🌱 순조로워요</span>
-          <span class="b-rest" id="bRest"></span>
-        </div>
-      </button>
-
-      <div class="card" style="margin-top:11px">
-        <h2 class="card-title">🎀 이번 달 많이 쓴 곳</h2>
-        <div id="calTopCats"></div>
-      </div>
     </section>
 
     <!-- ========== 내역 ========== -->
@@ -636,6 +615,28 @@
         <span class="ms-label" id="monthLabelStats">2026년 11월</span>
         <button class="nav-arrow" type="button" data-nav="next" aria-label="다음 달">▶</button>
       </div>
+
+      <button class="budget" id="budgetCard" type="button" aria-label="월 예산 수정">
+        <div class="b-head">
+          <span class="b-title">🍯 이번 달 예산</span>
+          <span class="b-edit">수정 ✏️</span>
+        </div>
+        <div class="b-row">
+          <span class="b-used" id="bUsed">0원</span>
+          <span class="b-total" id="bTotal">/ 500,000원</span>
+        </div>
+        <div class="gauge"><div class="gauge-fill ok" id="gaugeFill"></div></div>
+        <div class="b-foot">
+          <span class="b-status ok" id="bStatus">🌱 순조로워요</span>
+          <span class="b-rest" id="bRest"></span>
+        </div>
+      </button>
+
+      <div class="card" style="margin-top:11px">
+        <h2 class="card-title">🎀 이번 달 많이 쓴 곳</h2>
+        <div id="calTopCats"></div>
+      </div>
+
       <div class="card">
         <h2 class="card-title">💵 현금 vs 💳 카드 <span class="sub" id="paySub">지출 기준</span></h2>
         <div id="paySplit"></div>
@@ -664,7 +665,7 @@
 <nav class="tabbar" id="tabbar">
   <button class="tab on" data-tab="calendar" type="button"><span class="ti">📅</span>달력</button>
   <button class="tab" data-tab="list" type="button"><span class="ti">📝</span>내역</button>
-  <button class="tab" data-tab="stats" type="button"><span class="ti">📊</span>통계</button>
+  <button class="tab" data-tab="stats" type="button"><span class="ti">📊</span>예산·통계</button>
 </nav>
 
 <!-- 날짜 상세 -->
@@ -1075,6 +1076,25 @@
     $('calGrid').innerHTML = html;
 
     renderTopCats(txnOfMonth(y, m));
+    fitCalendar();
+  }
+
+  /* 달력 칸을 화면 높이에 맞춰 꽉 채우기 */
+  function fitCalendar() {
+    var grid = $('calGrid');
+    if (!grid || !grid.children.length) return;
+    var panel = document.querySelector('.panel[data-panel="calendar"]');
+    if (panel && panel.hidden) return;
+    var rows = Math.ceil(grid.children.length / 7);
+    if (!rows) return;
+    var top = grid.getBoundingClientRect().top;
+    var tab = $('tabbar');
+    var reserve = (tab ? tab.offsetHeight : 58) + 16;
+    var avail = window.innerHeight - top - reserve;
+    var gap = 3;
+    var h = Math.floor((avail - gap * (rows - 1)) / rows);
+    h = Math.max(50, Math.min(118, h));
+    grid.style.gridAutoRows = h + 'px';
   }
 
   function catTotals(list, type) {
@@ -1305,6 +1325,7 @@
     }
     $('fabWrap').hidden = (name === 'list');
     window.scrollTo(0, 0);
+    if (name === 'calendar') setTimeout(fitCalendar, 30);
   }
 
   /* =========================================================
@@ -1927,6 +1948,8 @@
     $('dayPrev').addEventListener('click', function () { goDay(shiftISO(dayTarget || todayISO(), -1)); });
     $('dayNext').addEventListener('click', function () { goDay(shiftISO(dayTarget || todayISO(), 1)); });
     $('memoMoveBtn').addEventListener('click', moveDayMemo);
+    window.addEventListener('resize', fitCalendar);
+    window.addEventListener('orientationchange', function () { setTimeout(fitCalendar, 120); });
 
     $('stkPad').addEventListener('click', function (e) {
       var b = e.target.closest ? e.target.closest('.stkbtn[data-stk]') : null;
