@@ -576,39 +576,6 @@
       </div>
     </section>
 
-    <!-- ========== 내역 ========== -->
-    <section class="panel" data-panel="list" hidden>
-      <div class="month-slim" id="monthSlimList">
-        <button class="nav-arrow" type="button" data-nav="prev" aria-label="이전 달">◀</button>
-        <span class="ms-label" id="monthLabelList">2026년 11월</span>
-        <button class="nav-arrow" type="button" data-nav="next" aria-label="다음 달">▶</button>
-      </div>
-      <form class="card" id="quickForm" novalidate>
-        <h2 class="card-title">✏️ 빠른 기록</h2>
-        <div class="seg" id="quickSeg">
-          <button type="button" data-type="expense" class="on expense">😿 지출</button>
-          <button type="button" data-type="income" class="income">🤑 수입</button>
-        </div>
-        <div class="amount-row" id="qAmountRow">
-          <input id="qAmount" type="text" inputmode="numeric" autocomplete="off" placeholder="0" aria-label="금액" />
-          <span class="unit">원</span>
-        </div>
-        <div class="paysel" id="qPay">
-          <button type="button" data-pay="cash"><span class="pe">💵</span>현금</button>
-          <button type="button" data-pay="card" class="on"><span class="pe">💳</span>카드</button>
-        </div>
-        <div class="chips" id="qChips"></div>
-        <input class="field" id="qMemo" type="text" maxlength="40" placeholder="한 줄 메모 (선택) 🖊️" aria-label="메모" />
-        <input class="field" id="qDate" type="date" aria-label="날짜" />
-        <button class="btn-primary" type="submit">추가하기 ✨</button>
-      </form>
-
-      <div class="card">
-        <h2 class="card-title">📝 내역 <span class="sub" id="listSub"></span></h2>
-        <div id="listBody"></div>
-      </div>
-    </section>
-
     <!-- ========== 통계 ========== -->
     <section class="panel" data-panel="stats" hidden>
       <div class="month-slim" id="monthSlimStats">
@@ -665,7 +632,6 @@
 
 <nav class="tabbar" id="tabbar">
   <button class="tab on" data-tab="calendar" type="button"><span class="ti">📅</span>달력</button>
-  <button class="tab" data-tab="list" type="button"><span class="ti">📝</span>내역</button>
   <button class="tab" data-tab="stats" type="button"><span class="ti">📊</span>예산·통계</button>
 </nav>
 
@@ -998,7 +964,6 @@
      ========================================================= */
   function renderHeader() {
     var label = view.y + '년 ' + (view.m + 1) + '월';
-    $('monthLabelList').textContent = label;
     $('monthLabelStats').textContent = label;
 
     var list = txnOfMonth(view.y, view.m);
@@ -1130,87 +1095,6 @@
   }
 
   /* =========================================================
-     내역 리스트
-     ========================================================= */
-  function renderList() {
-    var list = txnOfMonth(view.y, view.m).slice().sort(function (a, b) {
-      if (a.date !== b.date) return a.date < b.date ? 1 : -1;
-      return (b.createdAt || 0) - (a.createdAt || 0);
-    });
-
-    var s = sums(list);
-    $('listSub').textContent = list.length
-      ? list.length + '건 · 💵 ' + won(s.cashOut) + ' / 💳 ' + won(s.cardOut)
-      : '';
-
-    if (!list.length) {
-      $('listBody').innerHTML =
-        '<div class="empty">' +
-          '<span class="e-ico">🐣</span>' +
-          '<span class="e-tt">아직 내역이 없어요</span>' +
-          '<span class="e-ss">위에서 첫 기록을 남기거나, 예시로 둘러보세요</span>' +
-          '<button class="btn-ghost" type="button" id="emptySample">✨ 예시 데이터 넣어보기</button>' +
-        '</div>';
-      var b = $('emptySample');
-      if (b) b.addEventListener('click', insertSample);
-      return;
-    }
-
-    var groups = [], cur = null;
-    list.forEach(function (t) {
-      if (!cur || cur.date !== t.date) {
-        cur = { date: t.date, items: [], out: 0, inc: 0 };
-        groups.push(cur);
-      }
-      cur.items.push(t);
-      if (t.type === 'income') cur.inc += t.amount; else cur.out += t.amount;
-    });
-
-    var html = groups.map(function (g) {
-      var parts = g.date.split('-').map(Number);
-      var dow = new Date(parts[0], parts[1] - 1, parts[2]).getDay();
-      var memo = state.memos[g.date];
-      var stks = state.stickers[g.date] || [];
-      var phs = state.photos[g.date] || [];
-      var head = '<div class="grp-head">' +
-        '<span class="gh-date">' + parts[1] + '월 ' + parts[2] + '일' +
-          '<span class="gh-dow">' + DOW[dow] + '</span>' +
-          (stks.length ? '<span class="gh-stk">' + stks.join('') + '</span>' : '') +
-        '</span>' +
-        '<span class="gh-sum">' +
-          (g.out ? '<span class="minus">-' + won(g.out) + '</span>' : '') +
-          (g.out && g.inc ? ' · ' : '') +
-          (g.inc ? '<span class="plus">+' + won(g.inc) + '</span>' : '') +
-        '</span>' +
-      '</div>' +
-      (memo ? '<div class="grp-memo">📝 ' + esc(memo) + '</div>' : '') +
-      (phs.length ? '<div class="thumbs">' + phs.map(function (p) {
-        return '<img src="' + p.src + '" alt="날짜 사진" />';
-      }).join('') + '</div>' : '');
-
-      var rows = g.items.map(function (t) {
-        var c = catOf(t.category);
-        var p = payOf(t.pay);
-        return '<button type="button" class="txn" data-id="' + t.id + '">' +
-          '<span class="txn-emoji">' + c.emoji + '</span>' +
-          '<span class="txn-main">' +
-            '<span class="t-cat">' + esc(c.name) +
-              '<span class="badge ' + (t.pay === 'cash' ? 'cash' : 'card') + '">' +
-                p.emoji + ' ' + p.name + '</span>' +
-            '</span>' +
-            (t.memo ? '<span class="t-memo">' + esc(t.memo) + '</span>' : '') +
-          '</span>' +
-          '<span class="txn-amt ' + (t.type === 'income' ? 'in' : 'out') + '">' +
-            (t.type === 'income' ? '+' : '-') + won(t.amount) + '</span>' +
-        '</button>';
-      }).join('');
-      return '<div class="grp">' + head + rows + '</div>';
-    }).join('');
-
-    $('listBody').innerHTML = html;
-  }
-
-  /* =========================================================
      통계
      ========================================================= */
   function renderStats() {
@@ -1307,7 +1191,6 @@
   function renderAll() {
     renderHeader();
     renderCalendar();
-    renderList();
     renderStats();
   }
 
@@ -1324,7 +1207,6 @@
     for (var j = 0; j < panels.length; j++) {
       panels[j].hidden = panels[j].getAttribute('data-panel') !== name;
     }
-    $('fabWrap').hidden = (name === 'list');
     window.scrollTo(0, 0);
     if (name === 'calendar') setTimeout(fitCalendar, 30);
   }
@@ -1345,59 +1227,6 @@
     for (var i = 0; i < kids.length; i++) {
       kids[i].classList.toggle('on', kids[i].getAttribute('data-pay') === current);
     }
-  }
-
-  /* =========================================================
-     빠른 기록
-     ========================================================= */
-  function renderQuickChips() {
-    $('qChips').innerHTML = chipsHtml(quick.type, quick.category);
-    var seg = $('quickSeg').children;
-    for (var i = 0; i < seg.length; i++) {
-      seg[i].classList.toggle('on', seg[i].getAttribute('data-type') === quick.type);
-    }
-    payButtons($('qPay'), quick.pay);
-  }
-  function setQuickType(type) {
-    quick.type = type;
-    if (catsOf(type).every(function (c) { return c.id !== quick.category; })) {
-      quick.category = defaultCat(type);
-    }
-    renderQuickChips();
-  }
-
-  function submitQuick() {
-    var amount = parseAmount($('qAmount').value);
-    if (!amount) {
-      $('qAmountRow').classList.add('shake');
-      setTimeout(function () { $('qAmountRow').classList.remove('shake'); }, 360);
-      $('qAmount').focus();
-      toast('금액을 먼저 적어주세요 🙏');
-      return;
-    }
-    var date = $('qDate').value || todayISO();
-    state.txns.push({
-      id: uid(),
-      type: quick.type,
-      category: quick.category,
-      pay: quick.pay,
-      amount: amount,
-      memo: $('qMemo').value.trim(),
-      date: date,
-      createdAt: Date.now()
-    });
-    persist();
-
-    var parts = date.split('-').map(Number);
-    view.y = parts[0];
-    view.m = parts[1] - 1;
-    view.sel = date;
-
-    $('qAmount').value = '';
-    $('qMemo').value = '';
-    renderAll();
-    toast('✨ ' + won(amount) + ' 기록했어요');
-    $('qAmount').focus();
   }
 
   /* =========================================================
@@ -1460,7 +1289,6 @@
     else delete state.memos[dayTarget];
     persist();
     renderCalendar();
-    renderList();
     renderStats();
   }
 
@@ -1479,7 +1307,6 @@
     view.m = p[1] - 1;
     view.sel = dateStr;
     renderHeader();
-    renderList();
     renderStats();
     openDay(dateStr);
   }
@@ -1535,7 +1362,6 @@
     if (!save()) toast('저장 공간이 부족해요 😢');
     renderStickers();
     renderCalendar();
-    renderList();
   }
 
   /* =========================================================
@@ -1624,7 +1450,6 @@
       }
       if (target === dayTarget) renderDayPhotos();
       renderCalendar();
-      renderList();
       toast('📷 사진을 붙였어요');
     });
   }
@@ -1640,7 +1465,6 @@
     persist();
     renderDayPhotos();
     renderCalendar();
-    renderList();
     toast('🗑️ 사진을 지웠어요');
   }
 
@@ -1925,7 +1749,6 @@
       view.m = TODAY.getMonth();
       renderAll();
     });
-    $('monthSlimList').addEventListener('click', onSlimNav);
     $('monthSlimStats').addEventListener('click', onSlimNav);
 
     $('tabbar').addEventListener('click', function (e) {
@@ -1993,33 +1816,7 @@
       if (pre) setPhotoSize(pre.getAttribute('data-pid'), parseInt(pre.getAttribute('data-psize'), 10));
     });
 
-    $('listBody').addEventListener('click', function (e) {
-      var row = e.target.closest ? e.target.closest('.txn[data-id]') : null;
-      if (row) openEditor(row.getAttribute('data-id'));
-    });
-
-    $('quickSeg').addEventListener('click', function (e) {
-      var b = e.target.closest ? e.target.closest('button[data-type]') : null;
-      if (b) setQuickType(b.getAttribute('data-type'));
-    });
-    $('qPay').addEventListener('click', function (e) {
-      var b = e.target.closest ? e.target.closest('button[data-pay]') : null;
-      if (!b) return;
-      quick.pay = b.getAttribute('data-pay');
-      payButtons($('qPay'), quick.pay);
-    });
-    $('qChips').addEventListener('click', function (e) {
-      var b = e.target.closest ? e.target.closest('.chip[data-cat]') : null;
-      if (!b) return;
-      quick.category = b.getAttribute('data-cat');
-      renderQuickChips();
-    });
-    $('quickForm').addEventListener('submit', function (e) {
-      e.preventDefault();
-      submitQuick();
-    });
-
-    ['qAmount', 'eAmount', 'bAmount'].forEach(function (id) {
+    ['eAmount', 'bAmount'].forEach(function (id) {
       $(id).addEventListener('input', function () { this.value = commaStr(this.value); });
     });
 
@@ -2088,12 +1885,9 @@
      ========================================================= */
   function init() {
     load();
-    $('qDate').value = todayISO();
-    $('qDate').max = '2099-12-31';
     $('eDate').max = '2099-12-31';
     $('dayDate').max = '2099-12-31';
     $('memoMoveDate').max = '2099-12-31';
-    renderQuickChips();
     bind();
     setTab('calendar');
     renderAll();
