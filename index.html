@@ -446,8 +446,8 @@
   }
   .day-date:focus{box-shadow:inset 0 0 0 1.5px #ffc2d6;background:#fff}
   .day-date::-webkit-calendar-picker-indicator{opacity:.5}
-  .memo-move{display:flex;align-items:center;gap:6px;margin:1px 0 6px}
-  .mm-lbl{font-size:10.5px;font-weight:800;color:#c07d9b;white-space:nowrap}
+  .memo-move{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:1px 0 6px}
+  .mm-lbl{flex:1 0 100%;font-size:10.5px;font-weight:800;color:#c07d9b;line-height:1.35;word-break:keep-all}
   .mm-date{
     flex:1;min-width:0;border:0;background:#fff;border-radius:10px;padding:7px 8px;
     font-size:12.5px;font-weight:700;color:var(--ink-2);box-shadow:inset 0 0 0 1px #f3e9ee;outline:none;
@@ -654,9 +654,9 @@
       <label for="dayMemo">📝 이 날의 한 줄 메모</label>
       <input class="field" id="dayMemo" type="text" maxlength="60" placeholder="예: 비 와서 택시 탔음 ☔" />
       <div class="memo-move">
-        <span class="mm-lbl">↪ 다른 날짜로</span>
-        <input class="mm-date" id="memoMoveDate" type="date" aria-label="메모를 옮길 날짜" />
-        <button class="mm-btn" id="memoMoveBtn" type="button">옮기기</button>
+        <span class="mm-lbl">↪ 이 날 기록(내역·메모·스티커·사진) 전체 옮기기</span>
+        <input class="mm-date" id="memoMoveDate" type="date" aria-label="이 날 기록 전체를 옮길 날짜" />
+        <button class="mm-btn" id="memoMoveBtn" type="button">전체 옮기기</button>
       </div>
     </div>
 
@@ -1311,26 +1311,90 @@
     openDay(dateStr);
   }
 
-  /* 메모를 다른 날짜로 옮기기 */
-  function moveDayMemo() {
-    var v = $('dayMemo').value.trim();
+  /* 이 날 기록(내역 + 메모 + 스티커 + 사진)을 다른 날짜로 통째로 옮기기 */
+  function moveDayExtras() {
+    if (!dayTarget) return;
+    var from = dayTarget;
+    var v = ($('dayMemo').value || '').trim();
     var target = $('memoMoveDate').value;
-    if (!v) { toast('옮길 메모를 먼저 적어주세요 ✍️'); $('dayMemo').focus(); return; }
     if (!target || !/^\d{4}-\d{2}-\d{2}$/.test(target)) { toast('옮길 날짜를 골라주세요 📅'); return; }
-    if (target === dayTarget) { toast('지금 보고 있는 날짜예요 🙂'); return; }
+    if (target === from) { toast('지금 보고 있는 날짜예요 🙂'); return; }
+
+    var stks = (state.stickers[from] || []).slice();
+    var phs = (state.photos[from] || []).slice();
+    var txns = state.txns.filter(function (t) { return t.date === from; });
+    if (!v && !stks.length && !phs.length && !txns.length) {
+      toast('옮길 기록이 없어요 🐣');
+      return;
+    }
+
     var tp = target.split('-').map(Number);
     var label = tp[1] + '월 ' + tp[2] + '일';
-    if (state.memos[target] && state.memos[target] !== v &&
-        !window.confirm(label + '에 이미 메모가 있어요.\n' + label + ' 메모를 이 내용으로 바꿀까요?')) return;
-    state.memos[target] = v;
-    if (dayTarget) delete state.memos[dayTarget];
-    persist();
+
+    var tMemo = state.memos[target] || '';
+    var tStks = state.stickers[target] || [];
+    var tPhs = state.photos[target] || [];
+    var already = [];
+    if (tMemo && tMemo !== v) already.push('메모');
+    if (tStks.length) already.push('스티커 ' + tStks.length + '개');
+    if (tPhs.length) already.push('사진 ' + tPhs.length + '장');
+
+    var msg = '';
+    if (txns.length) {
+      msg += '내역 ' + txns.length + '건은 ' + label + ' 기록에 합쳐져요' +
+        (already.length ? ',' : '.') + '\n';
+    }
+    if (already.length) {
+      var moved = [];
+      if (v) moved.push('메모');
+      if (stks.length) moved.push('스티커 ' + stks.length + '개');
+      if (phs.length) moved.push('사진 ' + phs.length + '장');
+      msg += label + '에 이미 ' + already.join('·') + '가 있어요.\n' +
+        '옮기면 ' + label + '의 ' + already.join('·') + '는 ' +
+        (moved.length ? '이번에 옮기는 ' + moved.join('·') + '로 덮어써져요.' : '지워져요.') + '\n';
+    }
+    if (msg) {
+      msg += '그래도 옮길까요?';
+      if (!window.confirm(msg)) return;
+    }
+
+    var backup = {
+      memos: JSON.parse(JSON.stringify(state.memos)),
+      stickers: JSON.parse(JSON.stringify(state.stickers)),
+      photos: JSON.parse(JSON.stringify(state.photos)),
+      txns: state.txns.map(function (t) { return t.date; })
+    };
+
+    /* 내역: 대상 날짜로 합치기 */
+    for (var i = 0; i < state.txns.length; i++) {
+      if (state.txns[i].date === from) state.txns[i].date = target;
+    }
+    /* 메모·스티커·사진: 대상 날짜로 덮어쓰기 */
+    if (v) state.memos[target] = v; else delete state.memos[target];
+    if (stks.length) state.stickers[target] = stks; else delete state.stickers[target];
+    if (phs.length) state.photos[target] = phs; else delete state.photos[target];
+    /* 원래 날짜 비우기 */
+    delete state.memos[from];
+    delete state.stickers[from];
+    delete state.photos[from];
+
+    if (!save()) {
+      state.memos = backup.memos;
+      state.stickers = backup.stickers;
+      state.photos = backup.photos;
+      for (var j = 0; j < state.txns.length; j++) state.txns[j].date = backup.txns[j];
+      toast('저장 공간이 부족해 옮기지 못했어요 😢');
+      return;
+    }
+
     view.y = tp[0];
     view.m = tp[1] - 1;
     view.sel = target;
+    renderHeader();
     openDay(target);
+    renderStats();
     renderAll();
-    toast('📝 ' + label + '로 옮겼어요');
+    toast('📝🎀📷 ' + label + '로 기록 전체를 옮겼어요');
   }
 
   /* =========================================================
@@ -1774,7 +1838,7 @@
     $('dayDate').addEventListener('change', function () { goDay(this.value); });
     $('dayPrev').addEventListener('click', function () { goDay(shiftISO(dayTarget || todayISO(), -1)); });
     $('dayNext').addEventListener('click', function () { goDay(shiftISO(dayTarget || todayISO(), 1)); });
-    $('memoMoveBtn').addEventListener('click', moveDayMemo);
+    $('memoMoveBtn').addEventListener('click', moveDayExtras);
     window.addEventListener('resize', fitCalendar);
     window.addEventListener('orientationchange', function () { setTimeout(fitCalendar, 120); });
 
