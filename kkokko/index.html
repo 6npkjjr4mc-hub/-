@@ -987,7 +987,7 @@
     $('bandMonth').textContent = (view.m + 1) + '월';
     $('bandYear').textContent = String(view.y);
     $('bandEmoji').textContent = SEASON[view.m];
-    $('bandSpent').textContent = '-' + won(s.out);
+    $('bandSpent').textContent = (s.out > 0 ? '-' : '') + won(s.out);
 
     var budget = budgetOf(view.y, view.m);
     var pct = budget > 0 ? (s.out / budget) * 100 : 0;
