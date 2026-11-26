@@ -1049,9 +1049,15 @@
     renderTopCats(txnOfMonth(y, m));
     fitCalendar();
     fitDayAmounts();
+    setTimeout(fitDayAmounts, 80);
   }
 
   /* 달력 칸 폭에 맞춰 금액 글씨를 줄여, 한 줄에 잘리지 않고 다 들어가게 한다 */
+  function amtTextWidth(el) {
+    var r = document.createRange();
+    r.selectNodeContents(el);
+    return r.getBoundingClientRect().width;
+  }
   function fitDayAmounts() {
     var cells = document.querySelectorAll('#calGrid .day');
     for (var i = 0; i < cells.length; i++) {
@@ -1061,19 +1067,22 @@
       var avail = cell.clientWidth - 2;
       if (avail <= 0) continue;
       var size = 9.5;
-      var fits = false;
       var guard = 0;
-      while (!fits && size >= 6 && guard < 20) {
-        fits = true;
-        for (var j = 0; j < amts.length; j++) { amts[j].style.fontSize = size + 'px'; }
-        for (var k = 0; k < amts.length; k++) {
-          if (amts[k].scrollWidth > avail) { fits = false; break; }
+      var j;
+      for (j = 0; j < amts.length; j++) { amts[j].style.fontSize = size + 'px'; }
+      while (guard < 20) {
+        var widest = 0;
+        for (j = 0; j < amts.length; j++) {
+          var w = amtTextWidth(amts[j]);
+          if (w > widest) widest = w;
         }
-        if (!fits) size -= 0.5;
+        if (widest <= avail - 0.5 || size <= 6) break;
+        size -= 0.5;
+        for (j = 0; j < amts.length; j++) { amts[j].style.fontSize = size + 'px'; }
         guard++;
       }
-      for (var n = 0; n < amts.length; n++) {
-        amts[n].classList.toggle('tight', size < 8.5);
+      for (j = 0; j < amts.length; j++) {
+        amts[j].classList.toggle('tight', size < 8.5);
       }
     }
   }
